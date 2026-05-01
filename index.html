@@ -197,137 +197,96 @@
 
   </div>
   <script>
-      // const base = getBaseUrl();
-      const base = "https://ismygithubusernameworthy-8bb325cbaea4.herokuapp.com"
-    async function loadCSV(lang) {
-      const response = await fetch(`${base}/csv?lang=${lang}`);
+    // ── Backend ────────────────────────────────────────────────────────
+    const BASE_URL = "https://ismygithubusernameworthy-8bb325cbaea4.herokuapp.com";
 
-      if (!response.ok) {
-        console.error("Failed to load CSV:", lang);
-        return [];
-      }
-
-      const text = await response.text();
-      return parseCSV(text);
-    }
-function parseCSVLine(line) {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-
-  result.push(current);
-  return result;
-}
-  function parseCSV(csvText) {
-  const lines = csvText.trim().split("\n");
-  const headers = parseCSVLine(lines[0]);  // ← fix
-  const rows = [];
-  //console.log(lines)
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);  // ← fix
-    const row = {};
-    headers.forEach((h, index) => {
-      row[h] = values[index];
-    });
-    rows.push(row);
-  }
-  return rows;
-}
-
-    function createTable(csvData, title) {
-      const container = document.createElement("div");
-
-      const heading = document.createElement("h3");
-      heading.textContent = title;
-      container.appendChild(heading);
-
-      const table = document.createElement("table");
-  
-
-      if (csvData.length === 0) {
-        table.innerHTML = "<tr><td>No data</td></tr>";
-        container.appendChild(table);
-        return container;
-      }
-
-      const headers = Object.keys(csvData[0]);
-      const headerRow = document.createElement("tr");
-
-      headers.forEach((header) => {
-        const th = document.createElement("th");
-        th.textContent = header;
-        headerRow.appendChild(th);
-      });
-
-      table.appendChild(headerRow);
- console.log(csvData)
-      csvData.forEach((row) => {
-        console.log(row)
-        const tr = document.createElement("tr");
-        headers.forEach((header) => {
-          const td = document.createElement("td");
-          td.textContent = row[header];
-        
-          tr.appendChild(td);
-    
-        });
-        table.appendChild(tr);
-      });
-
-      container.appendChild(table);
-      return container;
-    }
-
-    async function showBothCSVs() {
-      const available = await loadCSV("available");
-      const taken = await loadCSV("taken");
-
-      document.getElementById("csv-available").appendChild(
-        createTable(available, "Available Usernames")
-      );
-
-      document.getElementById("csv-taken").appendChild(
-        createTable(taken, "Taken Usernames")
-      );
-    }
-
-    document.addEventListener("DOMContentLoaded", showBothCSVs);
-
-
-    function hideModal() {
-      document.getElementById("modal").style.cssText = "display:none;"
-    }
+    // ── State ─────────────────────────────────────────────────────────────
     let displayed = [];
     let usedNames = new Set();
     let panelOpen = false;
     let isGenerating = false;
     let isChecking = false;
 
+    // ── Transliteration table ─────────────────────────────────────────────
+    const TRANSLIT = {
+      // Greek lowercase
+      α: "a", β: "b", γ: "g", δ: "d", ε: "e", ζ: "z", η: "e", θ: "th",
+      ι: "i", κ: "k", λ: "l", μ: "m", ν: "n", ξ: "x", ο: "o", π: "p",
+      ρ: "r", σ: "s", ς: "s", τ: "t", υ: "y", φ: "ph", χ: "ch", ψ: "ps", ω: "o",
+      // Greek uppercase
+      Α: "A", Β: "B", Γ: "G", Δ: "D", Ε: "E", Ζ: "Z", Η: "E", Θ: "Th",
+      Ι: "I", Κ: "K", Λ: "L", Μ: "M", Ν: "N", Ξ: "X", Ο: "O", Π: "P",
+      Ρ: "R", Σ: "S", Τ: "T", Υ: "Y", Φ: "Ph", Χ: "Ch", Ψ: "Ps", Ω: "O",
+      // Greek with diacritics
+      ά: "a", έ: "e", ή: "e", ί: "i", ό: "o", ύ: "y", ώ: "o",
+      ΐ: "i", ϊ: "i", ϋ: "y",
+      Ά: "A", Έ: "E", Ή: "E", Ί: "I", Ό: "O", Ύ: "Y", Ώ: "O",
+      // Hebrew consonants
+      א: "", ב: "b", ג: "g", ד: "d", ה: "h", ו: "v", ז: "z", ח: "ch",
+      ט: "t", י: "y", כ: "k", ך: "k", ל: "l", מ: "m", ם: "m", נ: "n",
+      ן: "n", ס: "s", ע: "", פ: "p", ף: "p", צ: "tz", ץ: "tz",
+      ק: "q", ר: "r", ש: "sh", ת: "t",
+      // Cyrillic lowercase
+      а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo", ж: "zh",
+      з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o",
+      п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts",
+      ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya",
+      // Cyrillic uppercase
+      А: "A", Б: "B", В: "V", Г: "G", Д: "D", Е: "E", Ж: "Zh", З: "Z",
+      И: "I", К: "K", Л: "L", М: "M", Н: "N", О: "O", П: "P", Р: "R",
+      С: "S", Т: "T", У: "U", Ф: "F", Х: "Kh", Ц: "Ts", Ч: "Ch",
+      Ш: "Sh", Э: "E", Ю: "Yu", Я: "Ya",
+      // Latin diacritics lowercase
+      à: "a", á: "a", â: "a", ä: "a", ã: "a", å: "a",
+      è: "e", é: "e", ê: "e", ë: "e",
+      ì: "i", í: "i", î: "i", ï: "i",
+      ò: "o", ó: "o", ô: "o", ö: "o", õ: "o", ø: "o",
+      ù: "u", ú: "u", û: "u", ü: "u",
+      ý: "y", ÿ: "y", ñ: "n", ç: "c", ß: "ss", æ: "ae", œ: "oe",
+      // Latin diacritics uppercase
+      À: "A", Á: "A", Â: "A", Ä: "A", Ã: "A", Å: "A",
+      È: "E", É: "E", Ê: "E", Ë: "E",
+      Ì: "I", Í: "I", Î: "I", Ï: "I",
+      Ò: "O", Ó: "O", Ô: "O", Ö: "O", Õ: "O", Ø: "O",
+      Ù: "U", Ú: "U", Û: "U", Ü: "U",
+      Ý: "Y", Ñ: "N", Ç: "C", Æ: "Ae", Œ: "Oe",
+    };
+
+    // ── Utility ───────────────────────────────────────────────────────────
     function getBaseUrl() {
-      return document
-        .getElementById("backend-url")
-        .value.trim()
-        .replace(/\/+$/, "");
+      return BASE_URL;
     }
 
-    // ── Status bar ────────────────────────────────────────────────────
+    function splitCamelCase(word) {
+      return word
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2");
+    }
+
+    function transliterate(word) {
+      let out = "";
+      for (const ch of word) out += TRANSLIT[ch] ?? ch;
+      return out
+        .replace(/[^a-zA-Z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 39);
+    }
+
+    function processWord(raw) {
+      const split = splitCamelCase(raw.trim());
+      const latin = transliterate(split);
+      return { original: raw.trim(), split, latin };
+    }
+
+    function parseEntries(raw) {
+      return raw
+        .split(/[,\n]/)
+        .map((w) => w.trim())
+        .filter(Boolean);
+    }
+
+    // ── Status bar ────────────────────────────────────────────────────────
     function setStatus(msg, state, pct) {
       const bar = document.getElementById("status-bar");
       const text = document.getElementById("status-text");
@@ -335,8 +294,9 @@ function parseCSVLine(line) {
       bar.className = "status-bar visible " + (state || "");
       text.className = "status-text " + (state === "err" ? "err" : "ok");
       text.textContent = msg;
-      if (pct !== undefined)
+      if (pct !== undefined) {
         fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+      }
     }
 
     function clearStatus() {
@@ -350,119 +310,97 @@ function parseCSVLine(line) {
       el.textContent = msg;
       el.style.display = msg ? "block" : "none";
     }
-   console.log(displayed)
 
+    // FIX: setButtons now correctly enables btn-check after names are generated
     function setButtons(generating, checking) {
-      document.getElementById("btn-generate").disabled =
-        generating || checking;
-      document.getElementById("btn-check").disabled =
-        generating ||
-        checking ||
-        !displayed.filter((n) => n.status === "pending").length;
+      document.getElementById("btn-generate").disabled = generating || checking;
+      const hasPending = displayed.filter((n) => n.status === "pending").length > 0;
+      document.getElementById("btn-check").disabled = generating || checking || !hasPending;
     }
 
-    // ── Panels ────────────────────────────────────────────────────────
+    // ── Panels ────────────────────────────────────────────────────────────
     function togglePanel() {
       panelOpen = !panelOpen;
-      document.getElementById("panel-body").style.display = panelOpen
-        ? "block"
-        : "none";
-      document
-        .getElementById("panel-arrow")
-        .classList.toggle("open", panelOpen);
+      document.getElementById("panel-body").style.display = panelOpen ? "block" : "none";
+      document.getElementById("panel-arrow").classList.toggle("open", panelOpen);
     }
 
     function toggleCodePanel() {
       const body = document.getElementById("code-body");
       const arrow = document.getElementById("code-arrow");
-      const open = body.style.display !== "none" && body.style.display !== "";
-      body.style.display = open ? "none" : "block";
-      arrow.classList.toggle("open", !open);
+      const isOpen = body.style.display === "block";
+      body.style.display = isOpen ? "none" : "block";
+      arrow.classList.toggle("open", !isOpen);
     }
 
-    // ── Render ────────────────────────────────────────────────────────
+    // ── Stats & Render ────────────────────────────────────────────────────
     function updateStats() {
-      const avail = displayed.filter((n) => n.status === "available").length;
-      const taken = displayed.filter((n) => n.status === "taken").length;
-      const checking = displayed.filter(
-        (n) => n.status === "checking",
-      ).length;
-      document.getElementById("s-total").textContent = displayed.length;
-      document.getElementById("s-avail").textContent = avail;
-      document.getElementById("s-taken").textContent = taken;
+      const avail    = displayed.filter((n) => n.status === "available").length;
+      const taken    = displayed.filter((n) => n.status === "taken").length;
+      const checking = displayed.filter((n) => n.status === "checking").length;
+      document.getElementById("s-total").textContent    = displayed.length;
+      document.getElementById("s-avail").textContent    = avail;
+      document.getElementById("s-taken").textContent    = taken;
       document.getElementById("s-checking").textContent = checking;
-      document.getElementById("panel-title").textContent =
-        `All names (${displayed.length})`;
+      document.getElementById("panel-title").textContent = `All names (${displayed.length})`;
     }
 
     function renderCheckedList() {
       const list = document.getElementById("checked-list");
       if (!displayed.length) {
-        list.innerHTML =
-          '<div style="padding:12px 14px;font-size:13px;color:#aaa">Generate names to begin.</div>';
+        list.innerHTML = '<div style="padding:12px 14px;font-size:13px;color:#aaa">Generate names to begin.</div>';
         return;
       }
 
       // Preserve open detail rows across re-renders
       const openNames = new Set(
-        [...list.querySelectorAll(".crow-detail.open")].map(
-          (el) => el.dataset.name,
-        ),
+        [...list.querySelectorAll(".crow-detail.open")].map((el) => el.dataset.name)
       );
 
       list.innerHTML = "";
       [...displayed].reverse().forEach((item, i) => {
         const cls =
-          item.status === "available"
-            ? "ctag-available"
-            : item.status === "taken"
-              ? "ctag-taken"
-              : item.status === "checking"
-                ? "ctag-checking"
-                : "ctag-pending";
-        const label =
-          item.status === "available"
-            ? "Available"
-            : item.status === "taken"
-              ? "Taken"
-              : item.status === "checking"
-                ? "Checking..."
-                : "Pending";
+          item.status === "available" ? "ctag-available" :
+          item.status === "taken"     ? "ctag-taken"     :
+          item.status === "checking"  ? "ctag-checking"  :
+                                        "ctag-pending";
 
-        const hasDetail = item.meaning || item.scripture || item.enriching;
+        const label =
+          item.status === "available" ? "Available"   :
+          item.status === "taken"     ? "Taken"        :
+          item.status === "checking"  ? "Checking..."  :
+                                        "Pending";
+
         const isOpen = openNames.has(item.name);
 
         const wrapper = document.createElement("div");
         wrapper.className = "crow-wrapper";
 
-        // Main row
         const row = document.createElement("div");
         row.className = "crow";
         row.innerHTML = `
-      <span class="crow-num">${displayed.length - i}</span>
-      <span class="crow-name">${item.name}</span>
-      <span class="crow-cat" style="text-transform:capitalize">${item.category || ""}</span>
-      <span class="ctag ${cls}">${label}</span>
-      <span class="crow-toggle" title="Toggle meaning & citation">${isOpen ? "▲" : "▼"}</span>`;
+          <span class="crow-num">${displayed.length - i}</span>
+          <span class="crow-name">${item.name}</span>
+          <span class="crow-cat" style="text-transform:capitalize">${item.category || ""}</span>
+          <span class="ctag ${cls}">${label}</span>
+          <span class="crow-toggle" title="Toggle meaning & citation">${isOpen ? "▲" : "▼"}</span>
+        `;
 
-        // Detail panel
         const detail = document.createElement("div");
         detail.className = "crow-detail" + (isOpen ? " open" : "");
         detail.dataset.name = item.name;
 
         if (item.enriching) {
-          detail.innerHTML =
-            '<div class="crow-detail-loading">Looking up Catholic meaning and citation…</div>';
+          detail.innerHTML = '<div class="crow-detail-loading">Looking up Catholic meaning and citation…</div>';
         } else if (item.meaning || item.scripture) {
           detail.innerHTML = `
-        ${item.meaning ? `<div class="crow-detail-meaning">${item.meaning}</div>` : ""}
-        ${item.scripture ? `<div class="crow-detail-scripture">${item.scripture}</div>` : ""}`;
+            ${item.meaning  ? `<div class="crow-detail-meaning">${item.meaning}</div>`   : ""}
+            ${item.scripture ? `<div class="crow-detail-scripture">${item.scripture}</div>` : ""}
+          `;
         } else {
-          detail.innerHTML =
-            '<div class="crow-detail-loading" style="color:#aaa">No description available.</div>';
+          detail.innerHTML = '<div class="crow-detail-loading" style="color:#aaa">No description available.</div>';
         }
 
-        // Toggle click
         row.querySelector(".crow-toggle").addEventListener("click", () => {
           const open = detail.classList.toggle("open");
           row.querySelector(".crow-toggle").textContent = open ? "▲" : "▼";
@@ -476,49 +414,55 @@ function parseCSVLine(line) {
 
     function renderGrid() {
       const grid = document.getElementById("grid");
+      // Show everything except taken names
       const shown = displayed.filter((n) => n.status !== "taken");
       updateStats();
       renderCheckedList();
+
       if (!displayed.length) {
-        grid.innerHTML =
-          '<div class="empty">Click Generate names to begin.</div>';
+        grid.innerHTML = '<div class="empty">Click Generate names to begin.</div>';
         return;
       }
       if (!shown.length) {
-        grid.innerHTML =
-          '<div class="empty">All names are taken — click Generate names for a fresh list.</div>';
+        grid.innerHTML = '<div class="empty">All names are taken — click Generate names for a fresh list.</div>';
         return;
       }
+
       grid.innerHTML = "";
       shown.forEach((item) => {
         const card = document.createElement("div");
+        const cat = (item.category || "english").toLowerCase().replace(/[^a-z]/g, "") || "english";
+
+        // FIX: also handle "unknown" status visually
         card.className =
           "card" +
           (item.status === "available" ? " available" : "") +
-          (item.status === "checking" ? " checking" : "");
-        const cat =
-          (item.category || "english").toLowerCase().replace(/[^a-z]/g, "") ||
-          "english";
+          (item.status === "checking"  ? " checking"  : "") +
+          (item.status === "unknown"   ? " unknown"   : "");
+
         const tagHtml =
-          item.status === "available"
-            ? '<span class="tag tag-available">Available</span>'
-            : item.status === "checking"
-              ? '<span class="tag tag-checking">Checking...</span>'
-              : '<span class="tag tag-pending">Pending</span>';
+          item.status === "available" ? '<span class="tag tag-available">Available</span>' :
+          item.status === "checking"  ? '<span class="tag tag-checking">Checking...</span>'  :
+          item.status === "unknown"   ? '<span class="tag tag-unknown">Unknown</span>'       :
+                                        '<span class="tag tag-pending">Pending</span>';
+
         card.innerHTML = `
-      <div class="card-top">
-        <span class="uname">${item.name}</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="badge badge-${cat}">${item.category || "English"}</span>
-          ${tagHtml}
-        </div>
-      </div>
-      <div class="meaning">${item.meaning || (item.enriching ? '<em style="color:#aaa">Looking up meaning…</em>' : "")}</div>
-      <div class="scripture">${item.scripture || ""}</div>
-      <div class="card-actions">
-        <button id="copy-${item.name}" onclick="copyName('${item.name}')"
-          ${item.status !== "available" ? "disabled" : ""}>Copy</button>
-      </div>`;
+          <div class="card-top">
+            <span class="uname">${item.name}</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="badge badge-${cat}">${item.category || "English"}</span>
+              ${tagHtml}
+            </div>
+          </div>
+          <div class="meaning">
+            ${item.meaning || (item.enriching ? '<em style="color:#aaa">Looking up meaning…</em>' : "")}
+          </div>
+          <div class="scripture">${item.scripture || ""}</div>
+          <div class="card-actions">
+            <button id="copy-${item.name}" onclick="copyName('${item.name}')"
+              ${item.status !== "available" ? "disabled" : ""}>Copy</button>
+          </div>
+        `;
         grid.appendChild(card);
       });
     }
@@ -536,34 +480,25 @@ function parseCSVLine(line) {
       });
     }
 
-    // ── API: Generate names ───────────────────────────────────────────
+    // ── API: Generate names ───────────────────────────────────────────────
     async function fetchModelList() {
-
       const avoid = [
-        "Agape",
-        "Lumen",
-        "Pax",
-        "Gloria",
-        "Alleluia",
-        "Hosanna",
-        "Abide",
-        "Faith",
-        "Gratia",
-        "Grace",
+        "Agape", "Lumen", "Pax", "Gloria", "Alleluia", "Hosanna",
+        "Abide", "Faith", "Gratia", "Grace",
         ...usedNames,
       ].join(", ");
 
-      const res = await fetch(`${base}/model`, {
+      const res = await fetch(`${BASE_URL}/model`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avoid }),
       });
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(
-          `Backend ${res.status}: ${err.error || err.detail || "Is your server running?"}`,
-        );
+        throw new Error(`Backend ${res.status}: ${err.error || err.detail || "Is your server running?"}`);
       }
+
       const data = await res.json();
       const text = (data.content || [])
         .filter((b) => b.type === "text")
@@ -571,19 +506,15 @@ function parseCSVLine(line) {
         .join("");
       const clean = text.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
-      if (!Array.isArray(parsed))
-        throw new Error("Unexpected response format from /model");
+
+      if (!Array.isArray(parsed)) throw new Error("Unexpected response format from /model");
       return parsed;
     }
 
-    // ── API: Enrich manual names — same /model endpoint, mode="enrich" ─
-    // POST /model { mode: "enrich", words: ["Parakletos","Eirene"] }
-    // Server uses the same model call with a different prompt.
-    // Returns: [{ name, meaning, category, scripture }]
+    // ── API: Enrich manual names ──────────────────────────────────────────
     async function enrichNames(words) {
-      const base = getBaseUrl();
       try {
-        const res = await fetch(`${base}/model`, {
+        const res = await fetch(`${BASE_URL}/model`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mode: "enrich", words }),
@@ -602,27 +533,25 @@ function parseCSVLine(line) {
       }
     }
 
-    // ── API: Check username ───────────────────────────────────────────
+    // ── API: Check username ───────────────────────────────────────────────
     async function checkUsername(name) {
-      const base = getBaseUrl();
-      const res = await fetch(
-        `${base}/check?name=${encodeURIComponent(name)}`,
-      );
-      if (!res.ok) return "unknown";
-      const data = await res.json();
-      return data.available === true ? "available" : "taken";
+      try {
+        const res = await fetch(`${BASE_URL}/check?name=${encodeURIComponent(name)}`);
+        if (!res.ok) return "unknown";
+        const data = await res.json();
+        return data.available === true ? "available" : "taken";
+      } catch (e) {
+        return "unknown";
+      }
     }
 
-    // ── Generate ──────────────────────────────────────────────────────
+    // ── Generate ──────────────────────────────────────────────────────────
     async function generateNames() {
       if (isGenerating) return;
       isGenerating = true;
       setButtons(true, false);
-      setStatus(
-        "Asking model to generate faith-inspired names...",
-        "loading",
-        15,
-      );
+      setStatus("Asking model to generate faith-inspired names...", "loading", 15);
+
       try {
         const names = await fetchModelList();
         names.forEach((n) => {
@@ -631,11 +560,7 @@ function parseCSVLine(line) {
             usedNames.add(n.name);
           }
         });
-        setStatus(
-          `${names.length} names generated — click Check availability to verify.`,
-          "ok",
-          100,
-        );
+        setStatus(`${names.length} names generated — click Check availability to verify.`, "ok", 100);
         if (!panelOpen) togglePanel();
         renderGrid();
       } catch (e) {
@@ -643,11 +568,12 @@ function parseCSVLine(line) {
       } finally {
         isGenerating = false;
         setGenMsg("");
+        // FIX: setButtons AFTER renderGrid so hasPending is calculated correctly
         setButtons(false, false);
       }
     }
 
-    // ── Check all pending ─────────────────────────────────────────────
+    // ── Check all pending ─────────────────────────────────────────────────
     async function checkAll() {
       const pending = displayed.filter((n) => n.status === "pending");
       if (!pending.length) {
@@ -655,305 +581,41 @@ function parseCSVLine(line) {
         return;
       }
       if (isChecking) return;
+
       isChecking = true;
       setButtons(false, true);
-      pending.forEach((n) => {
-        n.status = "checking";
-      });
+      pending.forEach((n) => { n.status = "checking"; });
       renderGrid();
+
       const total = pending.length;
       let done = 0;
       setStatus(`Checking 0 of ${total}...`, "loading", 0);
+
       for (const item of pending) {
-        try {
-          item.status = await checkUsername(item.name);
-        } catch (e) {
-          item.status = "unknown";
-        }
+        item.status = await checkUsername(item.name);
         done++;
         setStatus(
           `Checking ${done} of ${total}...`,
           "loading",
-          Math.round((done / total) * 100),
+          Math.round((done / total) * 100)
         );
         renderGrid();
         await new Promise((r) => setTimeout(r, 300));
       }
+
       const avail = displayed.filter((n) => n.status === "available").length;
-      setStatus(
-        `Done — ${avail} available name${avail !== 1 ? "s" : ""} found.`,
-        "ok",
-        100,
-      );
+      setStatus(`Done — ${avail} available name${avail !== 1 ? "s" : ""} found.`, "ok", 100);
       isChecking = false;
       setButtons(false, false);
     }
 
-    // ── Client-side word processing ───────────────────────────────────
-    // CamelCase / PascalCase → split into component words joined with hyphen
-    // e.g. "BelovedParola" → "Beloved-Parola", "holyWord" → "holy-Word" TODO: keep joined if queried if taken/available check if - is also taken/available
-    function splitCamelCase(word) {
-      // Insert hyphen before each uppercase letter that follows a lowercase letter or digit
-      return word
-        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2");
-    }
-
-    // Static transliteration table: Greek, Hebrew, Cyrillic, Latin diacritics
-    const TRANSLIT = {
-      // Greek lowercase
-      α: "a",
-      β: "b",
-      γ: "g",
-      δ: "d",
-      ε: "e",
-      ζ: "z",
-      η: "e",
-      θ: "th",
-      ι: "i",
-      κ: "k",
-      λ: "l",
-      μ: "m",
-      ν: "n",
-      ξ: "x",
-      ο: "o",
-      π: "p",
-      ρ: "r",
-      σ: "s",
-      ς: "s",
-      τ: "t",
-      υ: "y",
-      φ: "ph",
-      χ: "ch",
-      ψ: "ps",
-      ω: "o",
-      // Greek uppercase
-      Α: "A",
-      Β: "B",
-      Γ: "G",
-      Δ: "D",
-      Ε: "E",
-      Ζ: "Z",
-      Η: "E",
-      Θ: "Th",
-      Ι: "I",
-      Κ: "K",
-      Λ: "L",
-      Μ: "M",
-      Ν: "N",
-      Ξ: "X",
-      Ο: "O",
-      Π: "P",
-      Ρ: "R",
-      Σ: "S",
-      Τ: "T",
-      Υ: "Y",
-      Φ: "Ph",
-      Χ: "Ch",
-      Ψ: "Ps",
-      Ω: "O",
-      // Greek with diacritics
-      ά: "a",
-      έ: "e",
-      ή: "e",
-      ί: "i",
-      ό: "o",
-      ύ: "y",
-      ώ: "o",
-      ΐ: "i",
-      ϊ: "i",
-      ϋ: "y",
-      Ά: "A",
-      Έ: "E",
-      Ή: "E",
-      Ί: "I",
-      Ό: "O",
-      Ύ: "Y",
-      Ώ: "O",
-      // Hebrew consonants
-      א: "",
-      ב: "b",
-      ג: "g",
-      ד: "d",
-      ה: "h",
-      ו: "v",
-      ז: "z",
-      ח: "ch",
-      ט: "t",
-      י: "y",
-      כ: "k",
-      ך: "k",
-      ל: "l",
-      מ: "m",
-      ם: "m",
-      נ: "n",
-      ן: "n",
-      ס: "s",
-      ע: "",
-      פ: "p",
-      ף: "p",
-      צ: "tz",
-      ץ: "tz",
-      ק: "q",
-      ר: "r",
-      ש: "sh",
-      ת: "t",
-      // Cyrillic
-      а: "a",
-      б: "b",
-      в: "v",
-      г: "g",
-      д: "d",
-      е: "e",
-      ё: "yo",
-      ж: "zh",
-      з: "z",
-      и: "i",
-      й: "y",
-      к: "k",
-      л: "l",
-      м: "m",
-      н: "n",
-      о: "o",
-      п: "p",
-      р: "r",
-      с: "s",
-      т: "t",
-      у: "u",
-      ф: "f",
-      х: "kh",
-      ц: "ts",
-      ч: "ch",
-      ш: "sh",
-      щ: "shch",
-      ъ: "",
-      ы: "y",
-      ь: "",
-      э: "e",
-      ю: "yu",
-      я: "ya",
-      А: "A",
-      Б: "B",
-      В: "V",
-      Г: "G",
-      Д: "D",
-      Е: "E",
-      Ж: "Zh",
-      З: "Z",
-      И: "I",
-      К: "K",
-      Л: "L",
-      М: "M",
-      Н: "N",
-      О: "O",
-      П: "P",
-      Р: "R",
-      С: "S",
-      Т: "T",
-      У: "U",
-      Ф: "F",
-      Х: "Kh",
-      Ц: "Ts",
-      Ч: "Ch",
-      Ш: "Sh",
-      Э: "E",
-      Ю: "Yu",
-      Я: "Ya",
-      // Latin diacritics
-      à: "a",
-      á: "a",
-      â: "a",
-      ä: "a",
-      ã: "a",
-      å: "a",
-      è: "e",
-      é: "e",
-      ê: "e",
-      ë: "e",
-      ì: "i",
-      í: "i",
-      î: "i",
-      ï: "i",
-      ò: "o",
-      ó: "o",
-      ô: "o",
-      ö: "o",
-      õ: "o",
-      ø: "o",
-      ù: "u",
-      ú: "u",
-      û: "u",
-      ü: "u",
-      ý: "y",
-      ÿ: "y",
-      ñ: "n",
-      ç: "c",
-      ß: "ss",
-      æ: "ae",
-      œ: "oe",
-      À: "A",
-      Á: "A",
-      Â: "A",
-      Ä: "A",
-      Ã: "A",
-      Å: "A",
-      È: "E",
-      É: "E",
-      Ê: "E",
-      Ë: "E",
-      Ì: "I",
-      Í: "I",
-      Î: "I",
-      Ï: "I",
-      Ò: "O",
-      Ó: "O",
-      Ô: "O",
-      Ö: "O",
-      Õ: "O",
-      Ø: "O",
-      Ù: "U",
-      Ú: "U",
-      Û: "U",
-      Ü: "U",
-      Ý: "Y",
-      Ñ: "N",
-      Ç: "C",
-      Æ: "Ae",
-      Œ: "Oe",
-    };
-    //TODO: possiblity to best get seperate agent or endpoint for this check, so far this works.
-    function transliterate(word) {
-      let out = "";
-      for (const ch of word) out += TRANSLIT[ch] ?? ch;
-      // Strip remaining non-ASCII, collapse hyphens, trim edges
-      return out
-        .replace(/[^a-zA-Z0-9-]/g, "")
-        .replace(/-+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 39);
-    }
-
-    // Full pipeline: split camelCase → transliterate → validate as GitHub username
-    function processWord(raw) {
-      const split = splitCamelCase(raw.trim()); // "BelovedParola" → "Beloved-Parola"
-      const latin = transliterate(split); // non-Latin chars → Latin equivalents
-      return { original: raw.trim(), split, latin };
-    }
-
-    // ── Manual input ──────────────────────────────────────────────────
-    function parseEntries(raw) {
-      // Accept comma-separated and/or newline-separated entries
-      return raw
-        .split(/[,\n]/)
-        .map((w) => w.trim())
-        .filter(Boolean);
-    }
-
+    // ── Manual input ──────────────────────────────────────────────────────
     function validateManualInput() {
       const raw = document.getElementById("manual-input").value;
       const input = document.getElementById("manual-input");
       const errEl = document.getElementById("manual-err");
       errEl.style.color = "#a32d2d";
+
       if (!raw.trim()) {
         input.style.borderColor = "";
         errEl.textContent = "";
@@ -962,7 +624,6 @@ function parseCSVLine(line) {
 
       const entries = parseEntries(raw);
 
-      // Reject entries that contain spaces within a single token
       const hasSpaces = entries.filter((w) => /\s/.test(w));
       if (hasSpaces.length) {
         input.style.borderColor = "#e24b4a";
@@ -971,10 +632,8 @@ function parseCSVLine(line) {
       }
 
       const processed = entries.map(processWord);
-      const empty = processed.filter((r) => !r.latin);
-      const duplicates = processed.filter(
-        (r) => usedNames.has(r.latin) || usedNames.has(r.original),
-      );
+      const empty      = processed.filter((r) => !r.latin);
+      const duplicates = processed.filter((r) => usedNames.has(r.latin) || usedNames.has(r.original));
 
       if (empty.length) {
         input.style.borderColor = "#e24b4a";
@@ -987,22 +646,17 @@ function parseCSVLine(line) {
         return false;
       }
 
-      // Show compact bulk preview — only list the ones that will be transformed
       const changed = processed.filter((r) => r.original !== r.latin);
-      const total = processed.length;
+      const total   = processed.length;
 
       input.style.borderColor = "#1d9e75";
+      errEl.style.color = "#085041";
+
       if (changed.length) {
-        errEl.style.color = "#085041";
-        const preview = changed
-          .slice(0, 5)
-          .map((r) => `  ${r.original} → ${r.latin}`)
-          .join("\n");
-        const more =
-          changed.length > 5 ? `\n  …and ${changed.length - 5} more` : "";
+        const preview = changed.slice(0, 5).map((r) => `  ${r.original} → ${r.latin}`).join("\n");
+        const more    = changed.length > 5 ? `\n  …and ${changed.length - 5} more` : "";
         errEl.textContent = `${total} word${total !== 1 ? "s" : ""} ready — ${changed.length} will be transformed:\n${preview}${more}`;
       } else {
-        errEl.style.color = "#085041";
         errEl.textContent = `${total} word${total !== 1 ? "s" : ""} ready to add.`;
       }
 
@@ -1013,24 +667,19 @@ function parseCSVLine(line) {
       if (!validateManualInput()) return;
       const raw = document.getElementById("manual-input").value;
       const entries = parseEntries(raw);
+
       if (!entries.length) {
-        document.getElementById("manual-err").textContent =
-          "Please enter at least one word.";
+        document.getElementById("manual-err").textContent = "Please enter at least one word.";
         return;
       }
 
-      // Process on the client — backend always receives clean Latin GitHub-valid strings
-      // camelCase is split, non-Latin chars transliterated, result trimmed to 39 chars
       const processed = entries.map(processWord).filter((r) => r.latin);
       const words = [
-        ...new Set(
-          processed.map((r) => r.latin).filter((w) => !usedNames.has(w)),
-        ),
+        ...new Set(processed.map((r) => r.latin).filter((w) => !usedNames.has(w))),
       ];
 
       if (!words.length) {
-        document.getElementById("manual-err").textContent =
-          "All entries are already in the list.";
+        document.getElementById("manual-err").textContent = "All entries are already in the list.";
         return;
       }
 
@@ -1056,42 +705,34 @@ function parseCSVLine(line) {
       if (!panelOpen) togglePanel();
       renderGrid();
 
-      // Step A: Enrich in batches of 10 so large bulk sets don't exceed model's context
+      // Enrich in batches of 10
       const BATCH = 10;
       const batches = [];
-      for (let i = 0; i < words.length; i += BATCH)
+      for (let i = 0; i < words.length; i += BATCH) {
         batches.push(words.slice(i, i + BATCH));
+      }
 
       setStatus(
         `Looking up meanings for ${words.length} name${words.length > 1 ? "s" : ""} (${batches.length} batch${batches.length > 1 ? "es" : ""})...`,
         "loading",
-        5,
+        5
       );
 
       let enriched = [];
       for (let b = 0; b < batches.length; b++) {
         const pct = Math.round(((b + 0.5) / batches.length) * 50);
-        setStatus(
-          `Enriching batch ${b + 1} of ${batches.length}...`,
-          "loading",
-          pct,
-        );
+        setStatus(`Enriching batch ${b + 1} of ${batches.length}...`, "loading", pct);
         const result = await enrichNames(batches[b]);
         if (result) enriched = enriched.concat(result);
       }
 
-      const allEnriched = enriched;
-
-      // Apply enrichment results
-      if (allEnriched && allEnriched.length) {
-        allEnriched.forEach((e) => {
-          const entry = displayed.find(
-            (d) => d.name.toLowerCase() === e.name.toLowerCase(),
-          );
+      if (enriched.length) {
+        enriched.forEach((e) => {
+          const entry = displayed.find((d) => d.name.toLowerCase() === e.name.toLowerCase());
           if (entry) {
-            entry.meaning = e.meaning || entry.meaning;
+            entry.meaning  = e.meaning  || entry.meaning;
             entry.scripture = e.scripture || entry.scripture;
-            entry.category = e.category || entry.category;
+            entry.category = e.category  || entry.category;
             entry.enriching = false;
           }
         });
@@ -1106,9 +747,9 @@ function parseCSVLine(line) {
       renderGrid();
       renderManualTags();
 
-      // Step B: Check availability
+      // Check availability
       const toCheck = displayed.filter(
-        (n) => n.manual && words.includes(n.name) && n.status === "pending",
+        (n) => n.manual && words.includes(n.name) && n.status === "pending"
       );
       if (!toCheck.length) {
         clearStatus();
@@ -1117,27 +758,17 @@ function parseCSVLine(line) {
 
       const total = toCheck.length;
       let done = 0;
-      setStatus(
-        `Checking ${total} name${total > 1 ? "s" : ""}...`,
-        "loading",
-        0,
-      );
-      toCheck.forEach((n) => {
-        n.status = "checking";
-      });
+      setStatus(`Checking ${total} name${total > 1 ? "s" : ""}...`, "loading", 0);
+      toCheck.forEach((n) => { n.status = "checking"; });
       renderGrid();
 
       for (const item of toCheck) {
-        try {
-          item.status = await checkUsername(item.name);
-        } catch (e) {
-          item.status = "unknown";
-        }
+        item.status = await checkUsername(item.name);
         done++;
         setStatus(
           `Checking ${done} of ${total}...`,
           "loading",
-          Math.round((done / total) * 100),
+          Math.round((done / total) * 100)
         );
         renderManualTags();
         renderGrid();
@@ -1145,11 +776,7 @@ function parseCSVLine(line) {
       }
 
       const avail = displayed.filter((n) => n.status === "available").length;
-      setStatus(
-        `Done — ${avail} available name${avail !== 1 ? "s" : ""} found.`,
-        "ok",
-        100,
-      );
+      setStatus(`Done — ${avail} available name${avail !== 1 ? "s" : ""} found.`, "ok", 100);
     }
 
     function renderManualTags() {
@@ -1164,15 +791,10 @@ function parseCSVLine(line) {
         const tag = document.createElement("div");
         tag.className = "manual-tag";
         const dot =
-          item.status === "available"
-            ? "🟢"
-            : item.status === "taken"
-              ? "🔴"
-              : item.status === "checking"
-                ? "🟡"
-                : item.enriching
-                  ? "✦"
-                  : "⚪";
+          item.status === "available" ? "🟢" :
+          item.status === "taken"     ? "🔴" :
+          item.status === "checking"  ? "🟡" :
+          item.enriching              ? "✦"  : "⚪";
         tag.innerHTML = `${dot} ${item.name} <button onclick="removeManualName('${item.name}')" title="Remove">&times;</button>`;
         container.appendChild(tag);
       });
@@ -1185,46 +807,27 @@ function parseCSVLine(line) {
       renderGrid();
     }
 
-    // ── Export & Reset ────────────────────────────────────────────────
+    // ── Export & Reset ────────────────────────────────────────────────────
     function exportCSV(type) {
       const names = displayed.filter((n) => n.status === type);
-      //console.log(names)
       if (!names.length) {
         alert(`No ${type} names to export yet.`);
         return;
       }
-      const rows = [
-        [
-          "#",
-          "Name",
-          "Category",
-          "Meaning",
-          "Scripture",
-          "Status",
-          // "GitHub URL",
-        ],
-      ];
-
-      names.forEach((n, i) =>{
-      //console.log(n.status)
+      const rows = [["#", "Name", "Category", "Meaning", "Scripture", "Status"]];
+      names.forEach((n, i) => {
         rows.push([
           i + 1,
           n.name,
           n.category || "",
           `"${(n.meaning || "").replace(/"/g, '""')}"`,
           n.scripture || "",
-        //  `https://github.com/${n.name}`,
-          n.status 
-   
-        ])}
-        
-      );
-      //console.log(rows)
+          n.status,
+        ]);
+      });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(
-        new Blob([rows.map((r) => r.join(",")).join("\n")], {
-          type: "text/csv",
-        }),
+        new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv" })
       );
       a.download = `catholic_usernames_${type}.csv`;
       a.click();
@@ -1234,9 +837,9 @@ function parseCSVLine(line) {
       if (!confirm("Clear everything and start fresh?")) return;
       displayed = [];
       usedNames.clear();
-      panelOpen = false;
-      isGenerating = false;
-      isChecking = false;
+      panelOpen     = false;
+      isGenerating  = false;
+      isChecking    = false;
       document.getElementById("panel-body").style.display = "none";
       document.getElementById("panel-arrow").classList.remove("open");
       clearStatus();
@@ -1250,12 +853,113 @@ function parseCSVLine(line) {
       const text = btn.previousElementSibling.innerText;
       navigator.clipboard.writeText(text).then(() => {
         btn.textContent = "Copied!";
-        setTimeout(() => {
-          btn.textContent = "Copy";
-        }, 1800);
+        setTimeout(() => { btn.textContent = "Copy"; }, 1800);
       });
     }
 
+    function hideModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    // ── CSV display on load ───────────────────────────────────────────────
+    function parseCSVLine(line) {
+      const result = [];
+      let current  = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          result.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function parseCSV(csvText) {
+      const lines   = csvText.trim().split("\n");
+      const headers = parseCSVLine(lines[0]);
+      const rows    = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const row    = {};
+        headers.forEach((h, index) => { row[h] = values[index]; });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function createTable(csvData, title) {
+      const container = document.createElement("div");
+      const heading   = document.createElement("h3");
+      heading.textContent = title;
+      container.appendChild(heading);
+
+      const table = document.createElement("table");
+
+      if (!csvData.length) {
+        table.innerHTML = "<tr><td>No data</td></tr>";
+        container.appendChild(table);
+        return container;
+      }
+
+      const headers   = Object.keys(csvData[0]);
+      const headerRow = document.createElement("tr");
+      headers.forEach((header) => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+
+      csvData.forEach((row) => {
+        const tr = document.createElement("tr");
+        headers.forEach((header) => {
+          const td = document.createElement("td");
+          td.textContent = row[header];
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+
+      container.appendChild(table);
+      return container;
+    }
+
+    async function loadCSV(lang) {
+      try {
+        const response = await fetch(`${BASE_URL}/csv?lang=${lang}`);
+        if (!response.ok) {
+          console.error("Failed to load CSV:", lang);
+          return [];
+        }
+        const text = await response.text();
+        return parseCSV(text);
+      } catch (e) {
+        console.error("CSV fetch error:", e);
+        return [];
+      }
+    }
+
+    async function showBothCSVs() {
+      const available = await loadCSV("available");
+      const taken     = await loadCSV("taken");
+      document.getElementById("csv-available").appendChild(createTable(available, "Available Usernames"));
+      document.getElementById("csv-taken").appendChild(createTable(taken, "Taken Usernames"));
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", showBothCSVs);
     renderGrid();
   </script>
 </body>
