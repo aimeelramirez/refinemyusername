@@ -195,9 +195,10 @@
 
   </div>
   <script>
-
+      // const base = getBaseUrl();
+      const base = "https://ismygithubusernameworthy-8bb325cbaea4.herokuapp.com"
     async function loadCSV(lang) {
-      const response = await fetch(`/csv?lang=${lang}`);
+      const response = await fetch(`${base}/csv?lang=${lang}`);
 
       if (!response.ok) {
         console.error("Failed to load CSV:", lang);
@@ -534,8 +535,7 @@ function parseCSVLine(line) {
 
     // ── API: Generate names ───────────────────────────────────────────
     async function fetchModelList() {
-      // const base = getBaseUrl();
-      const base = "https://ismygithubusernameworthy-8bb325cbaea4.herokuapp.com"
+
       const avoid = [
         "Agape",
         "Lumen",
