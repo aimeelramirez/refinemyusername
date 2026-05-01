@@ -2,153 +2,111 @@
 ### ✝ Catholic GitHub Username Checker
 
 <svg width="100%" viewBox="0 0 680 240" role="img" xmlns="http://www.w3.org/2000/svg">
-  <title>Catholic GitHub Username Checker — sunset lighthouse banner</title>
-  <desc>A warm pink and amber sunset with a lighthouse, for the Catholic GitHub Username Checker project banner.</desc>
-
+  <title>Catholic GitHub Username Checker — banner</title>
+  <desc>Deep indigo crown fading into Tiffany blue and blazing amber sun at the horizon, bright readable text, white lighthouse.</desc>
   <defs>
-    <radialGradient id="sun" cx="62%" cy="72%" r="35%">
-      <stop offset="0%" stop-color="#FAC775" stop-opacity="0.9"/>
-      <stop offset="40%" stop-color="#F4C0D1" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#FBEAF0" stop-opacity="0"/>
+    <radialGradient id="sg" cx="60%" cy="63%" r="58%">
+      <stop offset="0%"   stop-color="#FFFBEA" stop-opacity="1"/>
+      <stop offset="15%"  stop-color="#FAC775" stop-opacity="0.95"/>
+      <stop offset="38%"  stop-color="#AEECEA" stop-opacity="0.6"/>
+      <stop offset="65%"  stop-color="#F4C0D1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1a1040"  stop-opacity="0"/>
     </radialGradient>
-
-    <radialGradient id="beam" cx="22%" cy="58%" r="70%">
-      <stop offset="0%" stop-color="#FAC775" stop-opacity="0.45"/>
+    <radialGradient id="bl" cx="19%" cy="48%" r="62%">
+      <stop offset="0%"   stop-color="#FAC775" stop-opacity="0.75"/>
+      <stop offset="55%"  stop-color="#FAC775" stop-opacity="0.12"/>
       <stop offset="100%" stop-color="#FAC775" stop-opacity="0"/>
     </radialGradient>
-
-    <radialGradient id="sky" cx="50%" cy="100%" r="100%">
-      <stop offset="0%" stop-color="#F4C0D1"/>
-      <stop offset="45%" stop-color="#FBEAF0"/>
-      <stop offset="100%" stop-color="#ED93B1" stop-opacity="0.6"/>
-    </radialGradient>
-
-    <radialGradient id="waterrefl" cx="30%" cy="0%" r="100%">
-      <stop offset="0%" stop-color="#FAC775" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#F4C0D1" stop-opacity="0.05"/>
-    </radialGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#0e0b2e"/>
+      <stop offset="16%"  stop-color="#1a1040"/>
+      <stop offset="32%"  stop-color="#3b1f5e"/>
+      <stop offset="50%"  stop-color="#c06090"/>
+      <stop offset="66%"  stop-color="#81D8D0"/>
+      <stop offset="80%"  stop-color="#AEECEA"/>
+      <stop offset="90%"  stop-color="#FFFBEA"/>
+      <stop offset="100%" stop-color="#FAC775"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#3BBFB8"/>
+      <stop offset="30%"  stop-color="#0D9488"/>
+      <stop offset="65%"  stop-color="#076660"/>
+      <stop offset="100%" stop-color="#044a46"/>
+    </linearGradient>
+    <linearGradient id="cliff" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#076660"/>
+      <stop offset="100%" stop-color="#033030"/>
+    </linearGradient>
   </defs>
-
-  <!-- Sky -->
-  <rect width="680" height="240" fill="#FBEAF0" rx="14"/>
   <rect width="680" height="240" fill="url(#sky)" rx="14"/>
-
-  <!-- Sun -->
-  <circle cx="422" cy="148" r="28" fill="#FAC775" opacity="0.55"/>
-  <circle cx="422" cy="148" r="18" fill="#EF9F27" opacity="0.45"/>
-  <circle cx="422" cy="148" r="10" fill="#BA7517" opacity="0.35"/>
-  <rect width="680" height="240" fill="url(#sun)" rx="14"/>
-
-  <!-- Horizon glow bands -->
-  <rect x="0" y="148" width="680" height="6" fill="#F4C0D1" opacity="0.5" rx="0"/>
-  <rect x="0" y="152" width="680" height="4" fill="#FAC775" opacity="0.25"/>
-
-  <!-- Distant clouds -->
-  <ellipse cx="500" cy="60" rx="60" ry="14" fill="#F4C0D1" opacity="0.45"/>
-  <ellipse cx="545" cy="54" rx="38" ry="10" fill="#FBEAF0" opacity="0.5"/>
-  <ellipse cx="470" cy="56" rx="30" ry="9" fill="#ED93B1" opacity="0.2"/>
-
-  <ellipse cx="160" cy="44" rx="52" ry="12" fill="#F4C0D1" opacity="0.35"/>
-  <ellipse cx="195" cy="38" rx="32" ry="9" fill="#FBEAF0" opacity="0.45"/>
-  <ellipse cx="130" cy="42" rx="26" ry="8" fill="#ED93B1" opacity="0.18"/>
-
-  <ellipse cx="330" cy="34" rx="44" ry="10" fill="#F4C0D1" opacity="0.28"/>
-  <ellipse cx="360" cy="28" rx="28" ry="8" fill="#FBEAF0" opacity="0.4"/>
-
-  <!-- Sea -->
-  <rect x="0" y="158" width="680" height="82" fill="#F4C0D1" opacity="0.55" rx="0"/>
-  <rect x="0" y="170" width="680" height="70" fill="#ED93B1" opacity="0.25"/>
-  <rect x="0" y="185" width="680" height="55" fill="#993556" opacity="0.12"/>
-
-  <!-- Water shimmer lines -->
-  <path d="M0 168 Q85 163 170 168 Q255 173 340 168 Q425 163 510 168 Q595 173 680 168" fill="none" stroke="#FAC775" stroke-width="0.8" opacity="0.5" mask="url(#imagine-text-gaps-otbagf)"/>
-  <path d="M0 178 Q110 173 220 178 Q330 183 440 178 Q550 173 680 178" fill="none" stroke="#F4C0D1" stroke-width="0.6" opacity="0.6" mask="url(#imagine-text-gaps-otbagf)"/>
-  <path d="M0 190 Q80 185 170 190 Q280 195 390 190 Q490 185 600 190 Q640 192 680 190" fill="none" stroke="#F4C0D1" stroke-width="0.5" opacity="0.4"/>
-  <path d="M0 204 Q120 199 240 204 Q360 209 480 204 Q580 199 680 204" fill="none" stroke="#ED93B1" stroke-width="0.5" opacity="0.35"/>
-
-  <!-- Sun reflection on water -->
-  <ellipse cx="422" cy="175" rx="55" ry="9" fill="#FAC775" opacity="0.22"/>
-  <ellipse cx="422" cy="188" rx="35" ry="6" fill="#FAC775" opacity="0.14"/>
-  <ellipse cx="422" cy="200" rx="20" ry="4" fill="#EF9F27" opacity="0.1"/>
-
-  <!-- Lighthouse beam fan -->
-  <polygon points="148,128 30,50 0,80 0,158 80,175 148,165" fill="url(#beam)" opacity="0.6"/>
-  <polygon points="148,128 50,18 90,0 155,100" fill="url(#beam)" opacity="0.35"/>
-
-  <!-- Lighthouse beam reflection on water -->
-  <polygon points="148,162 60,200 0,240 120,240" fill="#FAC775" opacity="0.07"/>
-
-  <!-- Rocky cliff -->
-  <polygon points="90,240 165,240 175,210 155,200 110,205 82,218" fill="#72243E" opacity="0.35"/>
-  <polygon points="82,218 110,205 155,200 175,210 170,240 78,240" fill="#993556" opacity="0.2"/>
-
-  <!-- Lighthouse tower -->
-  <rect x="132" y="148" width="30" height="70" fill="#FBEAF0" opacity="0.9" rx="2"/>
-  <!-- Tower stripe -->
-  <rect x="132" y="170" width="30" height="10" fill="#ED93B1" opacity="0.55"/>
-  <rect x="132" y="196" width="30" height="9" fill="#ED93B1" opacity="0.45"/>
-
-  <!-- Tower mid section -->
-  <rect x="128" y="132" width="38" height="20" fill="#F4C0D1" opacity="0.85" rx="2"/>
-
-  <!-- Lantern room -->
-  <rect x="126" y="116" width="42" height="20" fill="#FBEAF0" opacity="0.95" rx="2"/>
-
-  <!-- Lantern glow -->
-  <rect x="132" y="120" width="30" height="12" fill="#FAC775" opacity="0.65" rx="1"/>
-  <circle cx="147" cy="126" r="7" fill="#EF9F27" opacity="0.5"/>
-
-  <!-- Roof -->
-  <polygon points="122,116 172,116 160,102 134,102" fill="#D4537E" opacity="0.6"/>
-  <line x1="147" y1="96" x2="147" y2="102" stroke="#993556" stroke-width="1.5" opacity="0.5"/>
-
-  <!-- Railing -->
-  <rect x="120" y="130" width="54" height="3" fill="#ED93B1" opacity="0.7" rx="1"/>
-  <line x1="128" y1="130" x2="128" y2="116" stroke="#ED93B1" stroke-width="1" opacity="0.5"/>
-  <line x1="138" y1="130" x2="138" y2="116" stroke="#ED93B1" stroke-width="1" opacity="0.5"/>
-  <line x1="156" y1="130" x2="156" y2="116" stroke="#ED93B1" stroke-width="1" opacity="0.5"/>
-  <line x1="166" y1="130" x2="166" y2="116" stroke="#ED93B1" stroke-width="1" opacity="0.5"/>
-
-  <!-- Door -->
-  <rect x="141" y="196" width="12" height="10" fill="#ED93B1" opacity="0.5" rx="1"/>
-
-  <!-- Window -->
-  <rect x="139" y="160" width="16" height="10" fill="#FAC775" opacity="0.5" rx="1"/>
-
-  <!-- Lighthouse water reflection -->
-  <rect x="135" y="168" width="24" height="30" fill="#F4C0D1" opacity="0.12" rx="1"/>
-
-  <!-- Stars / dots in upper sky -->
-  <circle cx="240" cy="22" r="1.2" fill="#993556" opacity="0.3"/>
-  <circle cx="310" cy="14" r="1" fill="#D4537E" opacity="0.25"/>
-  <circle cx="380" cy="20" r="0.9" fill="#993556" opacity="0.2"/>
-  <circle cx="560" cy="28" r="1.1" fill="#D4537E" opacity="0.25"/>
-  <circle cx="620" cy="18" r="0.9" fill="#993556" opacity="0.2"/>
-  <circle cx="80" cy="24" r="1" fill="#D4537E" opacity="0.2"/>
-
-  <!-- TEXT — right side -->
-  <line x1="220" y1="68" x2="648" y2="68" stroke="#D4537E" stroke-width="0.5" opacity="0.5"/>
-
-  <!-- Title -->
-  <text x="434" y="104" font-family="Georgia, 'Times New Roman', serif" font-size="21" font-weight="700" fill="#72243E" text-anchor="middle" letter-spacing="0.3">Catholic GitHub Username Checker</text>
-
-  <!-- Tagline -->
-  <text x="434" y="124" font-family="Georgia, 'Times New Roman', serif" font-size="10" font-weight="400" fill="#993556" text-anchor="middle" letter-spacing="2.2">FAITH  ·  LANGUAGE  ·  IDENTITY</text>
-
-  <line x1="220" y1="136" x2="648" y2="136" stroke="#D4537E" stroke-width="0.5" opacity="0.5"/>
-
-  <!-- Verse -->
-  <text x="434" y="156" font-family="Georgia, 'Times New Roman', serif" font-size="12" font-style="italic" fill="#72243E" text-anchor="middle" opacity="0.8">"In him we live and move and have our being."</text>
-  <text x="434" y="173" font-family="Georgia, 'Times New Roman', serif" font-size="10" fill="#993556" text-anchor="middle" letter-spacing="1.4" opacity="0.75">ACTS 17:28  ·  NABRE</text>
-
-  <!-- Subtle rounded border -->
-  <rect x="2" y="2" width="676" height="236" fill="none" stroke="#ED93B1" stroke-width="1" rx="13" opacity="0.5"/>
+  <circle cx="415" cy="150" r="48" fill="#FFFBEA" opacity="0.5"/>
+  <circle cx="415" cy="150" r="38" fill="#FFFBEA" opacity="0.95"/>
+  <circle cx="415" cy="150" r="27" fill="#FAC775" opacity="0.95"/>
+  <circle cx="415" cy="150" r="17" fill="#EF9F27" opacity="0.9"/>
+  <circle cx="415" cy="150" r="9"  fill="#BA7517" opacity="0.7"/>
+  <rect    width="680" height="240" fill="url(#sg)" rx="14"/>
+  <rect x="0" y="138" width="680" height="6"  fill="#AEECEA" opacity="0.8"/>
+  <rect x="0" y="144" width="680" height="5"  fill="#81D8D0" opacity="0.65"/>
+  <rect x="0" y="149" width="680" height="4"  fill="#FAC775" opacity="0.6"/>
+  <rect x="0" y="153" width="680" height="3"  fill="#FFFBEA" opacity="0.45"/>
+  <ellipse cx="88"  cy="22"  rx="70" ry="16" fill="#0e0b2e" opacity="0.9"/>
+  <ellipse cx="130" cy="14"  rx="44" ry="11" fill="#1a1040" opacity="0.85"/>
+  <ellipse cx="580" cy="18"  rx="72" ry="15" fill="#0e0b2e" opacity="0.88"/>
+  <ellipse cx="624" cy="10"  rx="46" ry="11" fill="#1a1040" opacity="0.82"/>
+  <ellipse cx="320" cy="14"  rx="60" ry="13" fill="#1a1040" opacity="0.8"/>
+  <ellipse cx="580" cy="78"  rx="56" ry="14" fill="#3b1f5e" opacity="0.6"/>
+  <ellipse cx="616" cy="70"  rx="36" ry="10" fill="#c06090" opacity="0.45"/>
+  <ellipse cx="100" cy="74"  rx="52" ry="13" fill="#3b1f5e" opacity="0.55"/>
+  <ellipse cx="136" cy="66"  rx="34" ry="9"  fill="#c06090" opacity="0.42"/>
+  <circle cx="42"  cy="14"  r="1.5" fill="#AEECEA" opacity="0.95"/>
+  <circle cx="96"  cy="6"   r="1.2" fill="#ffffff" opacity="0.9"/>
+  <circle cx="238" cy="5"   r="1.4" fill="#ffffff" opacity="0.95"/>
+  <circle cx="464" cy="10"  r="1.1" fill="#ffffff" opacity="0.78"/>
+  <circle cx="648" cy="14"  r="1.2" fill="#ffffff" opacity="0.85"/>
+  <rect x="0" y="157" width="680" height="83" fill="url(#sea)"/>
+  <path d="M0 164 Q85 159 170 164 Q255 169 340 164 Q425 159 510 164 Q595 169 680 164"  fill="none" stroke="#FFFBEA" stroke-width="1.5" opacity="0.55"/>
+  <path d="M0 176 Q110 171 220 176 Q330 181 440 176 Q550 171 680 176"                   fill="none" stroke="#AEECEA" stroke-width="1"   opacity="0.4"/>
+  <path d="M0 190 Q80 185 170 190 Q280 195 390 190 Q490 185 600 190 Q640 192 680 190"   fill="none" stroke="#FAC775" stroke-width="0.8" opacity="0.32"/>
+  <ellipse cx="415" cy="168" rx="95" ry="13" fill="#FFFBEA" opacity="0.48"/>
+  <ellipse cx="415" cy="183" rx="62" ry="8"  fill="#FAC775" opacity="0.3"/>
+  <ellipse cx="295" cy="173" rx="52" ry="6"  fill="#AEECEA" opacity="0.22"/>
+  <ellipse cx="535" cy="173" rx="52" ry="6"  fill="#AEECEA" opacity="0.22"/>
+  <polygon points="148,118 14,36  0,68  0,156 70,166 148,156" fill="url(#bl)" opacity="0.85"/>
+  <polygon points="148,118 42,4   86,0  156,88"                fill="url(#bl)" opacity="0.5"/>
+  <polygon points="74,240 184,240 194,202 168,190 108,196 72,210" fill="url(#cliff)"/>
+  <rect x="132" y="140" width="34" height="78" fill="#FFFFFF" rx="2"/>
+  <rect x="132" y="162" width="34" height="12" fill="#81D8D0" opacity="0.7"/>
+  <rect x="132" y="190" width="34" height="11" fill="#ED93B1" opacity="0.65"/>
+  <rect x="127" y="124" width="44" height="20" fill="#AEECEA" opacity="0.85" rx="2"/>
+  <rect x="124" y="108" width="50" height="20" fill="#FFFFFF" rx="2"/>
+  <rect x="130" y="112" width="38" height="12" fill="#FAC775" opacity="0.98" rx="1"/>
+  <circle cx="149" cy="118" r="11" fill="#EF9F27" opacity="0.88"/>
+  <circle cx="149" cy="118" r="6"  fill="#FFFBEA" opacity="0.78"/>
+  <polygon points="120,108 178,108 163,92 135,92" fill="#076660"/>
+  <line x1="149" y1="86" x2="149" y2="92" stroke="#044a46" stroke-width="2"/>
+  <rect x="118" y="122" width="62" height="4" fill="#81D8D0" opacity="0.9" rx="1"/>
+  <line x1="126" y1="122" x2="126" y2="108" stroke="#81D8D0" stroke-width="1.2" opacity="0.75"/>
+  <line x1="138" y1="122" x2="138" y2="108" stroke="#81D8D0" stroke-width="1.2" opacity="0.75"/>
+  <line x1="160" y1="122" x2="160" y2="108" stroke="#81D8D0" stroke-width="1.2" opacity="0.75"/>
+  <line x1="172" y1="122" x2="172" y2="108" stroke="#81D8D0" stroke-width="1.2" opacity="0.75"/>
+  <rect x="141" y="193" width="14" height="12" fill="#076660" opacity="0.75" rx="1"/>
+  <rect x="138" y="153" width="22" height="13" fill="#FAC775" opacity="0.72" rx="1"/>
+  <rect x="216" y="48" width="446" height="130" fill="#0e0b2e" opacity="0.38" rx="8"/>
+  <line x1="228" y1="62" x2="652" y2="62" stroke="#AEECEA" stroke-width="0.7" opacity="0.7"/>
+  <text x="440" y="96"  font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">Catholic GitHub Username Checker</text>
+  <text x="440" y="116" font-family="Georgia, 'Times New Roman', serif" font-size="10" fill="#AEECEA" text-anchor="middle" letter-spacing="2.6">FAITH  ·  LANGUAGE  ·  IDENTITY</text>
+  <line x1="228" y1="128" x2="652" y2="128" stroke="#AEECEA" stroke-width="0.7" opacity="0.7"/>
+  <text x="440" y="151" font-family="Georgia, 'Times New Roman', serif" font-size="13" font-style="italic" font-weight="700" fill="#FAC775" text-anchor="middle">"In him we live and move and have our being."</text>
+  <text x="440" y="169" font-family="Georgia, 'Times New Roman', serif" font-size="10" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.8" opacity="0.88">ACTS 17:28  ·  NABRE</text>
+  <rect x="2" y="2" width="676" height="236" fill="none" stroke="#81D8D0" stroke-width="1.2" rx="13" opacity="0.65"/>
 </svg>
 
 **[→ Try it live](https://aimeelramirez.github.io/refinemyusername/)**
 
 A full-stack tool that generates meaningful, scripture-grounded GitHub usernames from the Catholic theological tradition — and verifies their availability in real time. Instead of `dev_final_v3`, claim something that actually says who you are: `Thumiama`, `Hierurgia`, `Pneumatikos`.
 
+![ai demo screenshot of output](static/githubtemplate.png)
+ - Art was created by me.
 ---
 
 ## What It Does
